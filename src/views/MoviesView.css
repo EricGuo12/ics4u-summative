@@ -1,0 +1,39 @@
+.movies-view-container {
+    background-image: url('../assets/clouds.jpeg');
+    border: 2px solid #000080;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3); 
+    display: flex;
+    justify-content: center;  
+    border-radius: 4px; 
+    padding: 20px;            
+}
+
+.genre-button {
+    display: flex; 
+    width: 100%;
+    padding: 10px;
+    background-color: #000080;
+    color: #ffffff;
+    border: 1px solid #000080;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
+  }
+  
+  .genre-button:hover {
+    background-color: #808080; 
+    box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.2), 4px 4px 8px rgba(0, 0, 0, 0.3); /* Slightly stronger shadow on hover */
+  }
+  
+  .genre-button:active {
+    background-color: #404040; 
+    box-shadow: inset 6px 6px 10px rgba(0, 0, 0, 0.4); 
+  }
+  
+  .genre-button:focus {
+    outline: none; 
+    border: 2px solid #80007e; 
+    box-shadow: 0 0 0 3px rgba(255, 0, 153, 0.5); 
+  }
+  

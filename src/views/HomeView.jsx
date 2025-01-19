@@ -1,9 +1,20 @@
 import "./HomeView.css";
+import "../Components/Header.jsx";
+import "../Components/Hero.jsx";
+import "../Components/Footer.jsx";
 
-const HomeView = () => {
+import Header from "../Components/Header";
+import Hero from "../Components/Hero";
+import Footer from "../Components/Footer";
+
+function HomeView() {
   return (
-    <h1>Home</h1>
-  )
+    <div>
+      <Header />
+      <Hero />
+      <Footer />
+    </div>
+  );
 }
 
 export default HomeView;

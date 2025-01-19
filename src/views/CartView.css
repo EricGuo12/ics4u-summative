@@ -1,0 +1,89 @@
+/* General body styling */
+body {
+    background-color: #c0c0c0; /* Windows 98 gray */
+    font-family: "Tahoma", sans-serif; /* Classic Windows font */
+    color: black;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Main cart view container */
+  .cart-view {
+    border: 2px solid #000; /* Black border for the window */
+    background-color: #fff; /* White background for the content */
+    width: 80%;
+    margin: 20px auto;
+    padding: 20px;
+    box-shadow: 5px 5px #808080; /* Shadow effect */
+  }
+  
+  /* Back button */
+  .back-button {
+    background-color: #ececec; /* Light gray button background */
+    border: 2px outset #d3d3d3; /* Outset border for a 3D effect */
+    padding: 5px 10px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  
+  .back-button:hover {
+    background-color: #dcdcdc; /* Darker gray on hover */
+  }
+  
+  /* Heading styling */
+  h1 {
+    font-size: 20px;
+    margin: 10px 0;
+    text-align: center;
+    text-shadow: 1px 1px #fff; /* Subtle text shadow */
+  }
+  
+  /* Cart items container */
+  .cart-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+    padding: 10px;
+    border: 2px inset #000; /* Inset border for a window frame look */
+    background-color: #fff;
+  }
+  
+  /* Individual cart item */
+  .cart-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 2px groove #d3d3d3; /* Groove border for the 3D look */
+    background-color: #f5f5f5; /* Slightly off-white background */
+    padding: 10px;
+  }
+  
+  /* Cart item image */
+  .cart-item img {
+    width: 100px;
+    height: 150px;
+    border: 1px solid #000; /* Black border for images */
+    margin-right: 10px;
+  }
+  
+  /* Cart item title */
+  .cart-item h1 {
+    font-size: 16px;
+    flex-grow: 1;
+    text-align: left;
+  }
+  
+  /* Remove button */
+  .remove-button {
+    background-color: #ececec; /* Button background */
+    border: 2px outset #d3d3d3; /* Outset border for 3D effect */
+    padding: 5px 10px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  
+  .remove-button:hover {
+    background-color: #dcdcdc; /* Slightly darker on hover */
+  }
+  
