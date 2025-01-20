@@ -2,10 +2,13 @@ import "./Header.css";
 import netCafeLogo from "../assets/netcafelogo2.png";
 import { useStoreContext } from "../context";
 import { useNavigate } from "react-router-dom";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase";
 
 function Header() {
   const navigate = useNavigate();
-  const { login, setLogin, resetState, firstName } = useStoreContext();
+
+  const { user, resetState } = useStoreContext();
 
   function handleLogin() {
     navigate(`/login`);
@@ -15,23 +18,22 @@ function Header() {
     navigate(`/register`);
   }
 
-  function logout() {
-    setLogin(false);
-    resetState();
-    navigate(`/`);
+  async function logout() {
+    try {
+      await signOut(auth);
+      resetState();
+      navigate(`/`);
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   }
 
   function settings() {
     navigate(`/settings`);
   }
+
   function cartPage() {
     navigate("/cart");
-  }
-
-  function logout() {
-    navigate(`/`);
-    setLogin(false);
-    resetState();
   }
 
   return (
@@ -40,7 +42,7 @@ function Header() {
 
       <div className="nav-items">
         <p className="logo">NET CAFE</p>
-        {!login ? (
+        {!user ? (
           <>
             <button onClick={register}>Sign Up</button>
             <button onClick={handleLogin}>Sign In</button>
@@ -50,7 +52,9 @@ function Header() {
             <button onClick={logout}>Sign Out</button>
             <button onClick={settings}>Settings</button>
             <button onClick={cartPage}>Cart</button>
-            <p className="logo">Welcome, {firstName ? firstName : "User"}</p>
+            <p className="logo">
+              Welcome, {user.displayName ? user.displayName : "User"}
+            </p>
           </>
         )}
       </div>

@@ -1,18 +1,16 @@
-import { useState, useEffect } from "react";
 import axios from "axios";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import "./GenreView.css";
 import { useStoreContext } from "../context";
+import "./GenreView.css";
 
 function GenreView() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { cart, setCart } = useStoreContext();
-
+  const { user, firstName, cart, setCart, purchases } = useStoreContext();
   const [movies, setMovies] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const buttonText = (movieId) => (cart.has(movieId) ? "Added" : "Buy");
 
   const genreNames = {
     28: "Action",
@@ -31,8 +29,7 @@ function GenreView() {
     10752: "War",
     37: "Western",
   };
-
-  const genreName = genreNames[id];
+  const genreName = genreNames[id] || "Unknown Genre";
 
   useEffect(() => {
     if (!id) return;
@@ -67,49 +64,65 @@ function GenreView() {
   };
 
   const addToCart = (movie) => {
+    if (purchases && purchases.has(String(movie.id))) {
+      alert("You already purchased this movie!");
+      return;
+    }
+
     const movieDetails = {
       title: movie.title,
       url: movie.poster_path,
     };
 
-    setCart((prevCart) => prevCart.set(movie.id, movieDetails)); // Returns a new Map
+    setCart((prevCart) => {
+      const updatedCart = prevCart.set(String(movie.id), movieDetails);
+
+      if (user) {
+        localStorage.setItem(user.uid, JSON.stringify(updatedCart.toJS()));
+      }
+
+      return updatedCart;
+    });
   };
 
-  // const buttonText = (movieId) => {
-  //   return cart.has(movieId) ? "Added" : "Buy";
-  // };
+  const buttonText = (movieId) => {
+    const strId = String(movieId);
+    if (purchases && purchases.has(strId)) return "Purchased";
+    if (cart && cart.has(strId)) return "Added";
+    return "Buy";
+  };
 
   return (
     <div className="genre-list-container">
       <p className="page-title">{genreName}</p>
 
       <div className="movie-list">
-        {movies.map((movie) => (
-          <div
-            key={movie.id}
-            className="movie-item"
-            onClick={() => loadMovie(movie.id)}
-          >
-            <img
-              src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
-              alt={movie.title}
-              className="movie-poster"
-            />
-            <h3 className="movie-title">{movie.title}</h3>
+        {movies.map((movie) => {
+          const isPurchased = purchases && purchases.has(String(movie.id));
+          return (
+            <div key={movie.id} className="movie-item">
+              <div onClick={() => loadMovie(movie.id)}>
+                <img
+                  src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
+                  alt={movie.title}
+                  className="movie-poster"
+                />
+                <h3 className="movie-title">{movie.title}</h3>
+              </div>
 
-            {/* Add to cart button */}
-            <button
-              className="buy-button"
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent movie item click
-                addToCart(movie);
-              }}
-              disabled={cart.has(movie.id)}
-            >
-              {buttonText(movie.id)}
-            </button>
-          </div>
-        ))}
+              <button
+                className="buy-button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  addToCart(movie);
+                }}
+                disabled={isPurchased || cart.has(String(movie.id))}
+              >
+                {buttonText(movie.id)}
+              </button>
+            </div>
+          );
+        })}
       </div>
 
       {totalPages > 1 && (

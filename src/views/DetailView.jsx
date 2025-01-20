@@ -1,62 +1,88 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useStoreContext } from "../context";
 import "./DetailView.css";
 
 function DetailView() {
   const { id: paramId } = useParams();
-  const id = parseInt(paramId, 10); // Ensure id is a number
+  const id = parseInt(paramId, 10);
   const [movie, setMovie] = useState(null);
   const [trailers, setTrailers] = useState([]);
-  const { cart, setCart } = useStoreContext();
+  const { user, firstName, cart, setCart, purchases } = useStoreContext();
   const [buttonText, setButtonText] = useState("Buy");
   const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchMovieDetails() {
       try {
-        const movieResponse = await axios.get(
-          `https://api.themoviedb.org/3/movie/${id}?api_key=${
-            import.meta.env.VITE_TMDB_KEY
-          }`
-        );
+        const [movieResponse, videosResponse] = await Promise.all([
+          axios.get(
+            `https://api.themoviedb.org/3/movie/${id}?api_key=${
+              import.meta.env.VITE_TMDB_KEY
+            }`
+          ),
+          axios.get(
+            `https://api.themoviedb.org/3/movie/${id}/videos?api_key=${
+              import.meta.env.VITE_TMDB_KEY
+            }`
+          ),
+        ]);
+
         setMovie(movieResponse.data);
 
-        const videosResponse = await axios.get(
-          `https://api.themoviedb.org/3/movie/${id}/videos?api_key=${
-            import.meta.env.VITE_TMDB_KEY
-          }`
+        const trailerResults = videosResponse.data.results.filter(
+          (video) => video.type === "Trailer"
         );
-        setTrailers(
-          videosResponse.data.results.filter(
-            (video) => video.type === "Trailer"
-          )
-        );
+        setTrailers(trailerResults);
       } catch (error) {
         console.error("Error fetching movie data:", error);
       }
     }
 
-    fetchMovieDetails();
+    if (id) {
+      fetchMovieDetails();
+    }
   }, [id]);
 
   useEffect(() => {
-    setButtonText(cart.has(id) ? "Added" : "Buy");
-  }, [cart, id]);
+    const strId = String(id);
+
+    if (purchases && purchases.has(strId)) {
+      setButtonText("Purchased");
+    } else if (cart && cart.has(strId)) {
+      setButtonText("Added");
+    } else {
+      setButtonText("Buy");
+    }
+  }, [purchases, cart, id]);
 
   function cartPage() {
     navigate("/cart");
   }
 
   function addToCart() {
-    if (movie) {
-      const movieDetails = {
-        title: movie.original_title,
-        url: movie.poster_path,
-      };
-      setCart((prevCart) => prevCart.set(movie.id, movieDetails));
+    if (!movie) return;
+
+    if (purchases && purchases.has(String(id))) {
+      alert("You already purchased this movie!");
+      return;
     }
+
+    const movieDetails = {
+      title: movie.original_title,
+      url: movie.poster_path,
+    };
+
+    setCart((prevCart) => {
+      const updatedCart = prevCart.set(String(movie.id), movieDetails);
+
+      if (user) {
+        localStorage.setItem(user.uid, JSON.stringify(updatedCart.toJS()));
+      }
+
+      return updatedCart;
+    });
   }
 
   if (!movie) return <div>Loading...</div>;
@@ -67,10 +93,13 @@ function DetailView() {
         <button
           onClick={addToCart}
           className="buy-button"
-          disabled={cart.has(id)}
+          disabled={
+            (purchases && purchases.has(String(id))) || cart.has(String(id))
+          }
         >
           {buttonText}
         </button>
+
         <button className="cart-button" onClick={cartPage}>
           Cart
         </button>
@@ -85,6 +114,7 @@ function DetailView() {
           alt={movie.original_title}
           className="detail-view-poster"
         />
+
         <p className="detail-info">
           <span>Language:</span> {movie.original_language || "N/A"}
         </p>
@@ -95,8 +125,8 @@ function DetailView() {
           <span>Country:</span> {movie.origin_country?.join(", ") || "N/A"}
         </p>
         <p className="detail-info">
-          <span>Runtime:</span>{" "}
-          {movie.runtime ? `${movie.runtime} minutes` : "N/A"}
+          <span>Runtime:</span>
+          {movie.runtime ? ` ${movie.runtime} minutes` : " N/A"}
         </p>
         <p className="detail-info">
           <span>Release Date:</span> {movie.release_date || "N/A"}

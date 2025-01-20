@@ -1,37 +1,29 @@
 .genre-list-container {
     padding: 10px;
-    background-color: #808080; 
+    background-color: #808080;
     color: white;
     min-height: 100vh;
     width: 100%;
     position: relative;
-    display: inline-block;
-    border: 2px solid #2d4b2d; 
-}
-
-.movie-list {
+    border: 2px solid #2d4b2d;
+  }
+  
+  /* Use a grid for layout; each movie card is sized by its contents. */
+  .movie-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 20px;
     justify-items: center;
     padding: 0;
     list-style-type: none;
-}
-
-/* .movie-item {
-    text-align: center;
-    background-color: #2d1e79; 
-    border: 2px solid #808080; 
-    border-radius: 4px; 
-    overflow: hidden;
-    transition: transform 0.2s ease, box-shadow 0.3s ease;
-    width: 200px;
-    height: 350px; 
-    margin: 0 auto;
-    font-family: "MS Sans Serif", Tahoma, sans-serif;
-} */
-
-.movie-item {
+  }
+  
+  /* 
+    Main container for each movie.
+    Remove fixed height (350px).
+    Instead, let flex layout handle spacing.
+  */
+  .movie-item {
     text-align: center;
     background-color: #2d1e79;
     border: 2px solid #808080;
@@ -39,81 +31,112 @@
     overflow: hidden;
     transition: transform 0.2s ease, box-shadow 0.3s ease;
     width: 200px;
-    height: 350px;
+    /* Removed height: 350px; */
+    min-height: 350px; /* optional to enforce a minimum card height */
     margin: 0 auto;
     font-family: "MS Sans Serif", Tahoma, sans-serif;
+  
+    /* Make this a flex container so we can separate poster/title/button */
     display: flex;
     flex-direction: column;
-    justify-content: space-between; 
-}
-
-.movie-poster {
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px; /* add a bit of padding */
+  }
+  
+  .movie-poster {
     width: 100%;
-    height: 250px;
+    height: 250px; /* keep consistent poster height if you like */
     object-fit: cover;
     transition: transform 0.3s ease;
-}
-/* .movie-item:hover .movie-poster {
-    transform: scale(1.1);
-} */
-.movie-title {
-    font-size: 1.1rem;
-    color: #e5e5e5; 
-    margin-top: 10px;
-    padding: 10px;
+  }
+  
+  /* Movie title is allowed up to two lines, then truncates */
+  .movie-title {
+    font-size: 1rem;
+    color: #e5e5e5;
+    margin: 10px 0 5px 0;
+    padding: 0 5px; /* small horizontal padding */
     text-transform: capitalize;
-    font-family: "MS Sans Serif", Tahoma, sans-serif; 
-}
-
-.page-button {
-    position: relative;
-    background-color: #000080; 
-    color: white; 
-    font-size: 1.2rem;
-    padding: 10px 20px;
-    border: 2px solid #808080; 
-    border-radius: 4px; 
+    font-family: "MS Sans Serif", Tahoma, sans-serif;
+  
+    /* Truncate if longer than two lines */
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* up to 2 lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* Position the buy button at the bottom */
+  .buy-button {
+    margin-top: 5px;
+    padding: 6px 12px;
+    border: 2px solid #808080;
+    border-radius: 4px;
+    background-color: #222;
+    color: #fff;
     cursor: pointer;
-    display: block;
-    margin: 20px auto;
-    margin-bottom: 25px;
-    box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.4), 2px 2px 5px rgba(0, 0, 0, 0.3); /* Inset and outer shadow for depth */
-}
-
-.page-button:hover {
-    background-color: #f9bbef; 
-}
-.genre-buttons {
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    font-family: "MS Sans Serif", Tahoma, sans-serif;
+  }
+  
+  .buy-button:hover {
+    background: #f1f1f1;
+    color: #000;
+    box-shadow: inset 1px 1px 3px #b0b0b0, 2px 2px 5px #000;
+  }
+  
+  .buy-button:disabled {
+    background: #e0e0e0;
+    color: #a0a0a0;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  
+  .genre-buttons {
     margin-left: auto;
     margin-right: auto;
     display: flex;
-    justify-content: center; 
+    justify-content: center;
     gap: 10px;
     padding-top: 20px;
-}
-
-.page-title {
+  }
+  
+  .page-button {
+    position: relative;
+    background-color: #000080;
+    color: white;
+    font-size: 1.2rem;
+    padding: 10px 20px;
+    border: 2px solid #808080;
+    border-radius: 4px;
+    cursor: pointer;
+    display: block;
+    margin: 20px auto 25px auto;
+    box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.4),
+      2px 2px 5px rgba(0, 0, 0, 0.3);
+  }
+  
+  .page-button:hover {
+    background-color: #f9bbef;
+  }
+  
+  .page-title {
     font-size: 1.5rem;
     font-family: "MS Sans Serif", Tahoma, sans-serif;
-    background-color: #000000; 
+    background-color: #000000;
     padding: 10px;
     border-radius: 10px;
     color: white;
-    border: 2px solid #808080; 
-    box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.3), 0 0 5px rgba(0, 0, 255, 0.4); /* Soft glow effect */
-}
-
-.buy-button {
-}
-
-.buy-button:hover {
-    background: #f1f1f1; /* Light grey background on hover */
-    box-shadow: inset 1px 1px 3px #b0b0b0, 2px 2px 5px #000; /* Darker shadow on hover */
-}
-
-.buy-button:disabled {
-    background: #e0e0e0; /* Disabled state light grey */
-    color: #a0a0a0; /* Dimmed text color */
-    cursor: not-allowed; /* Disabled cursor */
-    box-shadow: none; /* No shadow when disabled */
-}
+    border: 2px solid #808080;
+    box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.3),
+      0 0 5px rgba(0, 0, 255, 0.4);
+  }
+  
+  .page {
+    text-align: center;
+    margin-top: 20px;
+    font-family: "MS Sans Serif", Tahoma, sans-serif;
+  }
+  

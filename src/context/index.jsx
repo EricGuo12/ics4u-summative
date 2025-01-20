@@ -10,17 +10,15 @@ const StoreContext = createContext();
 export const StoreProvider = ({ children }) => {
   const [cart, setCart] = useState(Map());
   const [login, setLogin] = useState(false);
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
   const [prefGenre, setPrefGenre] = useState([]);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [purchases, setPurchases] = useState(Map());
 
   const genres = [
     { id: 28, genre: "Action" },
     { id: 10751, genre: "Family" },
-    { id: 878, genre: "Science Fiction" },
+    { id: 878, genre: "Sci-Fi" },
     { id: 16, genre: "Animation" },
     { id: 35, genre: "Comedy" },
     { id: 14, genre: "Fantasy" },
@@ -34,24 +32,11 @@ export const StoreProvider = ({ children }) => {
     { id: 10752, genre: "War" },
     { id: 37, genre: "Western" },
   ];
-  const toggleGenre = (genre) => {
-    setChecked((prev) => {
-      const updatedChecked = { ...prev, [genre.genre]: !prev[genre.genre] };
 
-      // Update prefGenre based on checked state
-      const updatedPrefGenre = Object.keys(updatedChecked)
-        .filter((genreKey) => updatedChecked[genreKey])
-        .map((genreKey) => genres.find((g) => g.genre === genreKey)); // Find matching genre object
-
-      setPrefGenre(updatedPrefGenre); // Set prefGenre with objects containing both id and genre
-
-      return updatedChecked;
-    });
-  };
   const [checked, setChecked] = useState({
     Action: false,
     Family: false,
-    "Science Fiction": false,
+    "Sci-Fi": false,
     Animation: false,
     Comedy: false,
     Fantasy: false,
@@ -65,11 +50,57 @@ export const StoreProvider = ({ children }) => {
     War: false,
     Western: false,
   });
+
+  const toggleGenre = (genreObj) => {
+    setChecked((prev) => {
+      const updatedChecked = {
+        ...prev,
+        [genreObj.genre]: !prev[genreObj.genre],
+      };
+      const updatedPrefGenre = Object.keys(updatedChecked)
+        .filter((genreKey) => updatedChecked[genreKey])
+        .map((key) => genres.find((g) => g.genre === key));
+      setPrefGenre(updatedPrefGenre);
+      return updatedChecked;
+    });
+  };
+
+  useEffect(() => {
+    if (prefGenre?.length > 0) {
+      setChecked((prev) => {
+        const updatedChecked = { ...prev };
+        Object.keys(updatedChecked).forEach((genreKey) => {
+          updatedChecked[genreKey] = false;
+        });
+        prefGenre.forEach((genreObj) => {
+          if (updatedChecked.hasOwnProperty(genreObj.genre)) {
+            updatedChecked[genreObj.genre] = true;
+          }
+        });
+        return updatedChecked;
+      });
+    } else {
+      setChecked({
+        Action: false,
+        Family: false,
+        "Science Fiction": false,
+        Animation: false,
+        Comedy: false,
+        Fantasy: false,
+        Crime: false,
+        History: false,
+        Thriller: false,
+        Horror: false,
+        Adventure: false,
+        Music: false,
+        Mystery: false,
+        War: false,
+        Western: false,
+      });
+    }
+  }, [prefGenre]);
+
   const resetState = () => {
-    setFirstName("");
-    setLastName("");
-    setEmail("");
-    setPassword("");
     setCart(Map());
     setChecked({
       Action: false,
@@ -88,22 +119,56 @@ export const StoreProvider = ({ children }) => {
       War: false,
       Western: false,
     });
-    setPrefGenre([]); // Reset to an empty array
+    setPrefGenre([]);
     setUser(null);
     setPurchases(Map());
+    setLogin(false);
   };
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      if (fbUser) {
+        setUser(fbUser);
+        setLogin(true);
+
+        const sessionCart = localStorage.getItem(fbUser.uid);
+        if (sessionCart) {
+          setCart(Map(JSON.parse(sessionCart)));
+        }
+
+        try {
+          const docRef = doc(firestore, "users", fbUser.email);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            setPurchases(Map(data.purchases || {}));
+            setPrefGenre(data.genres || []);
+          } else {
+            setPurchases(Map());
+            setPrefGenre([]);
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      } else {
+        setUser(null);
+        setLogin(false);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return <h1>Loading...</h1>;
+  }
 
   return (
     <StoreContext.Provider
       value={{
-        email,
-        setEmail,
-        password,
-        setPassword,
-        firstName,
-        setFirstName,
-        lastName,
-        setLastName,
+        user,
+        setUser,
         cart,
         setCart,
         login,
@@ -113,6 +178,8 @@ export const StoreProvider = ({ children }) => {
         toggleGenre,
         prefGenre,
         setPrefGenre,
+        purchases,
+        setPurchases,
         resetState,
       }}
     >
